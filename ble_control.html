@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>发车铃 · 蓝牙控制</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#172238;font:16px/1.65 system-ui,sans-serif;padding:24px}main{max-width:540px;margin:36px auto;background:white;padding:30px;border-radius:20px;box-shadow:0 8px 40px #17223812}h1{font-size:26px;margin:0 0 8px}p{color:#59657a}button,select{font:inherit;border-radius:10px;padding:11px 16px;border:1px solid #cbd4e1}button{background:#245ddd;color:white;border:0;cursor:pointer}button:disabled{opacity:.4;cursor:default}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0}input[type=range]{width:100%;accent-color:#245ddd}label{display:block;font-weight:600;margin-top:24px}select{flex:1;min-width:180px;background:white}#message{min-height:48px;color:#245ddd;font-size:14px;white-space:pre-wrap}#state{background:#f3f5f8;border-radius:12px;padding:14px}.small{font-size:13px}.secondary{background:#eaf0fb;color:#245ddd}output{font-size:24px;font-weight:700}
+</style>
+<main><h1>发车铃 · 蓝牙控制</h1><p>先按下实体开关，让发车铃保持播放，再连接。</p>
+<div class="row"><button id="connect">连接发车铃</button><button id="disconnect" class="secondary" disabled>断开</button></div>
+<div id="state" role="status">尚未连接</div>
+<label for="volume">音量 <output id="volumeValue">75%</output></label>
+<input id="volume" type="range" min="0" max="100" value="75" disabled>
+<button id="applyVolume" disabled>应用音量</button>
+<label for="track">播放方式</label><div class="row"><select id="track" disabled>
+<option value="R">随机选曲</option><option value="T0">etchujima</option><option value="T1">inage-kaigan</option><option value="T2">JK03-south</option><option value="T3">JT03_SGW</option></select><button id="applyTrack" disabled>应用选曲</button></div>
+<div class="row"><button id="save" disabled>保存设置</button><button id="refresh" class="secondary" disabled>刷新状态</button></div>
+<div id="message" role="status"></div>
+<p class="small">保存将在音乐循环结束、选曲切换或警示音结束后的静音时刻完成。关机前请等待“保存成功”。解除自锁会播放警示音，然后休眠并断开蓝牙；再次按下开关后可重新连接。</p>
+<p class="small">此页面用于支持Web Bluetooth的Chrome/Edge。Android需要在支持的浏览器中通过HTTPS访问；不支持的浏览器可使用BLE调试工具连接。</p></main>
+<script>
+const SERVICE='c3b10000-7a6b-4c90-8d12-123456789abc';
+const uuid=n=>'c3b1000'+n+'-7a6b-4c90-8d12-123456789abc';
+const $=id=>document.getElementById(id), decoder=new TextDecoder(), encoder=new TextEncoder();
+const names=['etchujima','inage-kaigan','JK03-south','JT03_SGW'];
+let device, command, state, ack, busy=false;
+function enable(connected){for(const id of ['volume','applyVolume','track','applyTrack','save','refresh','disconnect'])$(id).disabled=!connected||busy;$('connect').disabled=connected||busy;}
+function showError(e){$('message').textContent='操作失败：'+e.message;}
+function disconnected(){command=state=ack=null;busy=false;enable(false);$('state').textContent='已断开。按下实体开关后可重新连接。';}
+function renderState(value){
+ const text=decoder.decode(value), m=/^v(\d+),m([RT]),t(-?\d+),p([IMWE]),d([01]),s([0-3])$/.exec(text);
+ if(!m){$('message').textContent='未知状态：'+text;return;}
+ const phase={I:'待机',M:'音乐播放',W:'警示音播放',E:'播放错误'}[m[4]], index=Number(m[3]);
+ $('volume').value=m[1];$('volumeValue').textContent=m[1]+'%';
+ $('track').value=m[2]==='R'?'R':'T'+m[6];
+ $('state').textContent=phase+' · '+(names[index]||'尚未选曲')+' · '+(m[2]==='R'?'随机':'固定')+' · '+(m[5]==='1'?'设置未保存':'设置已保存');
+}
+function renderAck(value){const text=decoder.decode(value);$('message').textContent=text==='WAIT:S'?'等待静音时刻保存，请勿断电。':text==='OK:S'?'保存成功，重启后仍保留。':text.startsWith('ERR:')?'设备拒绝操作：'+text:text==='READY'?'已连接。':'操作已接收：'+text;}
+$('connect').onclick=async()=>{
+ if(!navigator.bluetooth){$('message').textContent='当前浏览器不支持Web Bluetooth，请用Chrome/Edge或BLE调试工具。';return;}
+ busy=true;enable(false);
+ try{
+  device=await navigator.bluetooth.requestDevice({filters:[{services:[SERVICE]}]});
+  device.addEventListener('gattserverdisconnected',disconnected);
+  const server=await device.gatt.connect(), service=await server.getPrimaryService(SERVICE);
+  command=await service.getCharacteristic(uuid(1));state=await service.getCharacteristic(uuid(2));ack=await service.getCharacteristic(uuid(4));
+  await state.startNotifications();state.addEventListener('characteristicvaluechanged',e=>renderState(e.target.value));
+  await ack.startNotifications();ack.addEventListener('characteristicvaluechanged',e=>renderAck(e.target.value));
+  renderState(await state.readValue());$('message').textContent='已连接 DepartureBell。';
+ }catch(e){if(device?.gatt.connected)device.gatt.disconnect();disconnected();showError(e);}
+ finally{busy=false;enable(Boolean(device?.gatt.connected&&command));}
+};
+async function send(text){
+ if(!command||busy)return;busy=true;enable(true);
+ try{await command.writeValueWithResponse(encoder.encode(text));}
+ catch(e){showError(e);}finally{busy=false;enable(Boolean(device?.gatt.connected&&command));}
+}
+$('volume').oninput=()=>{$('volumeValue').textContent=$('volume').value+'%';};
+$('applyVolume').onclick=()=>send('V'+$('volume').value);
+$('applyTrack').onclick=()=>send($('track').value);
+$('save').onclick=()=>send('S');
+$('refresh').onclick=async()=>{if(!state||busy)return;busy=true;enable(true);try{renderState(await state.readValue());}catch(e){showError(e);}finally{busy=false;enable(Boolean(device?.gatt.connected&&command));}};
+$('disconnect').onclick=()=>device?.gatt.disconnect();
+enable(false);
+</script></html>

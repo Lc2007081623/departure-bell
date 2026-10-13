@@ -1,0 +1,122 @@
+[
+  {
+    "name": "etchujima",
+    "split_seconds": 24.0,
+    "samples": 626771,
+    "segments": [
+      [
+        8,
+        529200
+      ],
+      [
+        264608,
+        97571
+      ]
+    ],
+    "loudness": [
+      {
+        "input_lufs": -21.3,
+        "output_lufs": -19.72,
+        "output_true_peak_db": -4.02,
+        "mode": "linear"
+      },
+      {
+        "input_lufs": -22.02,
+        "output_lufs": -19.83,
+        "output_true_peak_db": -3.0,
+        "mode": "dynamic"
+      }
+    ],
+    "source_sha256": "e021a415e35b108dffa121ac54d0769fe971fd6b05059d2c722c25fc06f59d81"
+  },
+  {
+    "name": "inage-kaigan",
+    "split_seconds": 11.0,
+    "samples": 322746,
+    "segments": [
+      [
+        313394,
+        242550
+      ],
+      [
+        434669,
+        80196
+      ]
+    ],
+    "loudness": [
+      {
+        "input_lufs": -17.83,
+        "output_lufs": -19.68,
+        "output_true_peak_db": -7.61,
+        "mode": "linear"
+      },
+      {
+        "input_lufs": -21.98,
+        "output_lufs": -19.75,
+        "output_true_peak_db": -3.0,
+        "mode": "dynamic"
+      }
+    ],
+    "source_sha256": "defe8c5c7c780ee5bbb99a420f93b2f965292762f622e5d3248f2e3bbf5cbaba"
+  },
+  {
+    "name": "JK03-south",
+    "split_seconds": 18.0,
+    "samples": 497250,
+    "segments": [
+      [
+        474767,
+        396900
+      ],
+      [
+        673217,
+        100350
+      ]
+    ],
+    "loudness": [
+      {
+        "input_lufs": -10.85,
+        "output_lufs": -19.76,
+        "output_true_peak_db": -9.93,
+        "mode": "linear"
+      },
+      {
+        "input_lufs": -12.72,
+        "output_lufs": -19.94,
+        "output_true_peak_db": -8.34,
+        "mode": "linear"
+      }
+    ],
+    "source_sha256": "361cd329edf96d5a16dfaae8e8f26dc435a442c9b71c84405f2362d01e26ba0c"
+  },
+  {
+    "name": "JT03_SGW",
+    "split_seconds": 17.0,
+    "samples": 503314,
+    "segments": [
+      [
+        723392,
+        374850
+      ],
+      [
+        910817,
+        128464
+      ]
+    ],
+    "loudness": [
+      {
+        "input_lufs": -10.49,
+        "output_lufs": -19.81,
+        "output_true_peak_db": -10.49,
+        "mode": "linear"
+      },
+      {
+        "input_lufs": -13.16,
+        "output_lufs": -19.57,
+        "output_true_peak_db": -7.73,
+        "mode": "linear"
+      }
+    ],
+    "source_sha256": "d2a274c0084b71afa5fa8273cd1abfded87deebb5bebd5208b4e23ee3debe819"
+  }
+]

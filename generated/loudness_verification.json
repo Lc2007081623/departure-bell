@@ -1,0 +1,50 @@
+[
+  {
+    "name": "etchujima",
+    "segment": 0,
+    "decoded_lufs": -19.99,
+    "decoded_true_peak_db": -4.05
+  },
+  {
+    "name": "etchujima",
+    "segment": 1,
+    "decoded_lufs": -19.91,
+    "decoded_true_peak_db": -2.7
+  },
+  {
+    "name": "inage-kaigan",
+    "segment": 0,
+    "decoded_lufs": -19.99,
+    "decoded_true_peak_db": -7.6
+  },
+  {
+    "name": "inage-kaigan",
+    "segment": 1,
+    "decoded_lufs": -19.88,
+    "decoded_true_peak_db": -2.52
+  },
+  {
+    "name": "JK03-south",
+    "segment": 0,
+    "decoded_lufs": -19.99,
+    "decoded_true_peak_db": -9.71
+  },
+  {
+    "name": "JK03-south",
+    "segment": 1,
+    "decoded_lufs": -19.97,
+    "decoded_true_peak_db": -7.69
+  },
+  {
+    "name": "JT03_SGW",
+    "segment": 0,
+    "decoded_lufs": -19.99,
+    "decoded_true_peak_db": -9.98
+  },
+  {
+    "name": "JT03_SGW",
+    "segment": 1,
+    "decoded_lufs": -19.97,
+    "decoded_true_peak_db": -7.14
+  }
+]

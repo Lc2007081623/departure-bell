@@ -1,0 +1,11 @@
+{
+  "apk": "output/DepartureBell-1.0.0.apk",
+  "bytes": 49625,
+  "sha256": "40b615a0ab7e94707225dbfb71a75d43a5e075b20a2ce7896a079b901539669f",
+  "minAndroid": "8.0 (API 26)",
+  "targetSdk": 35,
+  "version": "1.0.0",
+  "package": "cn.departurebell.control",
+  "verification": "state/command tests, APK signature and ZIP alignment PASS",
+  "phoneBleTest": "user installed and reported normal operation"
+}
