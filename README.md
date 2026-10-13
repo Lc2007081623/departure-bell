@@ -99,3 +99,9 @@ arduino-cli lib install NimBLE-Arduino@2.5.1
 - [BOM Excel](hardware/BOM_Board1_PCB1_2026-10-13.xlsx)：对应元器件清单。
 
 文件按原始导出内容上传，未修改。可编辑EDA工程和原理图尚未纳入仓库。
+
+## 许可证
+
+本项目的原创固件代码、安卓应用代码、脚本、文档和硬件设计文件采用 [MIT License](LICENSE)，版权署名为 `2026 Lc2007081623`。
+
+音乐文件 `bell/*.mp3`、由它们生成的 `generated/audio.bin` 以及发布包中的音频内容**不包含在MIT授权内**，其权利归各自权利人所有。第三方库、框架及其编译内容保留各自的许可证；本项目的MIT许可证不替代这些授权。

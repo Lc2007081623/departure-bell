@@ -30,6 +30,8 @@ with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
  for name in files:z.write(root/'generated'/name,name)
  z.writestr('README.txt',instructions)
  z.writestr('SHA256.json',json.dumps(checksums,indent=2))
+ z.write(root/'LICENSE','LICENSE')
+ z.writestr('LICENSE_SCOPE.txt','Project original code, documentation and hardware design files: MIT.\nAudio content (audio.bin and source MP3 files) is excluded from MIT; rights belong to the respective rights holders.\nThird-party libraries/frameworks retain their own licenses; MIT does not replace those licenses.\n')
 with zipfile.ZipFile(archive) as z:
  assert z.testzip() is None
  for name,digest in checksums.items():assert hashlib.sha256(z.read(name)).hexdigest()==digest

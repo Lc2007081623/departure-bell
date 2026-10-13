@@ -11,5 +11,7 @@ ESP32-C3发车铃固件和安卓BLE控制应用的首个公开版本。
 
 - `DepartureBell-1.0.0.apk`：安卓安装包，需允许蓝牙权限。
 - `DepartureBell-firmware-1.0.0.zip`：ESP32-C3的启动程序、分区、应用、音频映像与烧录说明。
+- `Gerber_PCB1_2026-10-13.zip`、`BOM_Board1_PCB1_2026-10-13.xlsx`：v6 PCB生产文件和元器件清单。
+- `LICENSE`：项目原创代码、文档和硬件文件的MIT许可证；音乐及第三方组件不包含在MIT授权内。
 
 APK和固件均通过构建及相应校验；用户反馈安卓应用、音乐循环与警示播放正常。
