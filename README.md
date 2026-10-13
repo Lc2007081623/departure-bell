@@ -83,6 +83,7 @@ arduino-cli lib install NimBLE-Arduino@2.5.1
 | --- | --- |
 | `firmware/` | ESP32-C3固件、BLE协议、自定义分区 |
 | `android-app/` | 原生Java安卓应用、构建脚本、APK |
+| `hardware/` | v6 PCB的Gerber生产文件和BOM（2026-10-13导出） |
 | `bell/` | 原始音频 |
 | `generated/` | 音频映像、分段与响度数据 |
 | `ble_control.html` | 电脑Chrome/Edge用Web Bluetooth控制页 |
@@ -90,4 +91,11 @@ arduino-cli lib install NimBLE-Arduino@2.5.1
 
 安卓应用已编译并通过协议测试、APK签名和对齐校验，用户反馈使用正常。固件实物检查了音乐循环、对应警示、BLE音量/选曲/随机、保存、再次唤醒连接，以及60秒空闲后的休眠。网页控制可运行 `node test_ble_control.cjs` 检查。
 
-本地签名密钥、完整Flash备份、开发工具及串口日志不纳入仓库。当前为个人DIY项目，PCB原理图和布局文件尚未整理到本仓库。
+本地签名密钥、完整Flash备份、开发工具及串口日志不纳入仓库。当前为个人DIY项目。
+
+## PCB生产文件
+
+- [Gerber ZIP](hardware/Gerber_PCB1_2026-10-13.zip)：v6 PCB生产文件。
+- [BOM Excel](hardware/BOM_Board1_PCB1_2026-10-13.xlsx)：对应元器件清单。
+
+文件按原始导出内容上传，未修改。可编辑EDA工程和原理图尚未纳入仓库。
