@@ -116,7 +116,12 @@ bool beginBellBle(){
   ackCharacteristic=service->createCharacteristic(BLE_ACK,NIMBLE_PROPERTY::READ|NIMBLE_PROPERTY::NOTIFY,20);
   ackCharacteristic->setValue("READY");
   auto tracks=service->createCharacteristic(BLE_TRACKS,NIMBLE_PROPERTY::READ,256);
-  tracks->setValue("0=etchujima;1=inage-kaigan;2=JK03-south;3=JT03_SGW");
+  String trackList;
+  for(size_t i=0;i<TRACK_COUNT;i++){
+    if(i)trackList+=';';
+    trackList+=String(i);trackList+='=';trackList+=TRACKS[i].name;
+  }
+  tracks->setValue(trackList.c_str());
   if(!bleServer->start())return false;
   auto advertising=NimBLEDevice::getAdvertising();
   advertising->enableScanResponse(true);

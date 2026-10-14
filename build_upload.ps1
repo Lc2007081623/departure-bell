@@ -17,6 +17,8 @@ $bellBuild = Join-Path $env:TEMP 'bell-v5-build'
 if ($LASTEXITCODE -ne 0) { throw 'Audio preparation failed' }
 & python (Join-Path $PSScriptRoot 'verify_audio.py')
 if ($LASTEXITCODE -ne 0) { throw 'Audio verification failed' }
+& python (Join-Path $PSScriptRoot 'verify_catalog.py')
+if ($LASTEXITCODE -ne 0) { throw 'Track catalog verification failed' }
 & $bellCli compile --fqbn 'esp32:esp32:esp32c3:CDCOnBoot=cdc' --build-path $bellBuild (Join-Path $PSScriptRoot 'firmware')
 if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
 $bellOutput = Join-Path $PSScriptRoot 'generated'

@@ -44,7 +44,19 @@ def normalize_segment(pcm):
 blob = bytearray(b'BELLV5A1')
 rows = []
 tracks = []
-for path in sorted((ROOT / 'bell').glob('*.mp3')):
+catalog = json.loads((ROOT / 'tracks.json').read_text(encoding='utf-8'))
+if not 1 <= len(catalog) <= 10 or len(set(catalog)) != len(catalog):
+    raise ValueError('Track catalog must contain 1..10 unique names')
+sources = {}
+for path in (ROOT / 'bell').glob('*.mp3'):
+    match = re.fullmatch(r'(.+)[（(](\d+(?:\.\d+)?)[）)]', path.stem)
+    if not match or match[1] in sources:
+        raise ValueError(f'Invalid or duplicate track filename: {path.name}')
+    sources[match[1]] = path
+if set(sources) != set(catalog):
+    raise ValueError('MP3 files and tracks.json differ; append new names without reordering existing IDs')
+for name in catalog:
+    path = sources[name]
     match = re.fullmatch(r'(.+)[（(](\d+(?:\.\d+)?)[）)]', path.stem)
     if not match:
         raise ValueError(f'Missing split seconds: {path.name}')
@@ -71,12 +83,13 @@ for path in sorted((ROOT / 'bell').glob('*.mp3')):
                    'segments': segments, 'loudness': loudness,
                    'source_sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
     rows.append('  {"%s", {%d, %d}, {%d, %d}},' % (name, *segments[0], *segments[1]))
-assert len(tracks) == 4
+assert len(tracks) == len(catalog)
 assert len(blob) < 0x300000
 (OUT / 'audio.bin').write_bytes(blob)
 (OUT / 'manifest.json').write_text(json.dumps(tracks, ensure_ascii=False, indent=2), encoding='utf-8')
 header = '#pragma once\nstruct Segment { uint32_t offset, samples; };\nstruct Track { const char *name; Segment music, warning; };\n'
 header += 'constexpr Track TRACKS[] = {\n' + '\n'.join(rows) + '\n};\n'
+header += 'constexpr size_t TRACK_COUNT = sizeof(TRACKS)/sizeof(TRACKS[0]);\n'
 header += f'constexpr uint32_t AUDIO_BYTES = {len(blob)};\nconstexpr uint32_t AUDIO_CRC = 0x{zlib.crc32(blob):08x};\n'
 (ROOT / 'firmware' / 'audio_manifest.h').write_text(header, encoding='utf-8')
 print(json.dumps({'bytes': len(blob), 'tracks': tracks}, ensure_ascii=False, indent=2))

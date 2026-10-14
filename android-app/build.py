@@ -5,9 +5,11 @@ import os
 import pathlib
 import subprocess
 import zipfile
+import xml.etree.ElementTree as ET
 
 root=pathlib.Path(__file__).resolve().parent
 os.chdir(root)
+version=ET.parse('AndroidManifest.xml').getroot().attrib['{http://schemas.android.com/apk/res/android}versionName']
 def find(folder,filename):
  matches=list((root/'tools'/folder).rglob(filename))
  if not matches:raise RuntimeError('Missing '+filename+'; run setup_tools.py first')
@@ -38,12 +40,12 @@ os.environ['BELL_KEY_PASSWORD']='DepartureBellLocalBuild2026'
 if not (signing/'bell-control.p12').exists():
  run(keytool,'-genkeypair','-keystore','signing/bell-control.p12','-storetype','PKCS12','-storepass:env','BELL_KEY_PASSWORD','-keypass:env','BELL_KEY_PASSWORD','-alias','bell-control','-keyalg','RSA','-keysize','2048','-validity','10000','-dname','CN=Departure Bell Local Build')
 output=root/'output';output.mkdir(exist_ok=True)
-apk='output/DepartureBell-1.0.0.apk'
+apk=f'output/DepartureBell-{version}.apk'
 run(java,'-jar',relative(aapt.parent/'lib/apksigner.jar'),'sign','--ks','signing/bell-control.p12','--ks-pass','env:BELL_KEY_PASSWORD','--key-pass','env:BELL_KEY_PASSWORD','--out',apk,'build/aligned.apk')
 run(java,'-jar',relative(aapt.parent/'lib/apksigner.jar'),'verify','--verbose','--print-certs',apk)
 run(align,'-c','4',apk)
 badging=subprocess.check_output([str(aapt),'dump','badging',apk],text=True,encoding='utf-8')
 (output/'apk-info.txt').write_text(badging,encoding='utf-8')
-report={'apk':apk,'bytes':pathlib.Path(apk).stat().st_size,'sha256':hashlib.sha256(pathlib.Path(apk).read_bytes()).hexdigest(),'minAndroid':'8.0 (API 26)','targetSdk':35,'version':'1.0.0','package':'cn.departurebell.control','verification':'state/command tests, APK signature and ZIP alignment PASS','phoneBleTest':'pending installation on user Android phone'}
+report={'apk':apk,'bytes':pathlib.Path(apk).stat().st_size,'sha256':hashlib.sha256(pathlib.Path(apk).read_bytes()).hexdigest(),'minAndroid':'8.0 (API 26)','targetSdk':35,'version':version,'package':'cn.departurebell.control','verification':'state/command tests, APK signature and ZIP alignment PASS','phoneBleTest':'pending installation on user Android phone'}
 (output/'build-report.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
 print(json.dumps(report,ensure_ascii=False,indent=2))

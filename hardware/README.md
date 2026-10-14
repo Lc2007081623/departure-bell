@@ -6,7 +6,7 @@
 
 - [Gerber生产文件](Gerber_PCB1_2026-10-13.zip)：用于PCB打板。
 - [BOM元器件清单](BOM_Board1_PCB1_2026-10-13.xlsx)：采购和焊接以表内型号、数量及封装为准。
-- [固件与安卓APK下载页](https://github.com/Lc2007081623/departure-bell/releases/tag/v1.0.0)。
+- [固件与安卓APK下载页](https://github.com/Lc2007081623/departure-bell/releases/latest)。
 
 主要硬件为ESP32-C3 SuperMini开发板、NS4168功放电路、FP6298升压电路、单节带保护锂电池、自锁开关、8Ω / 2W喇叭及连接线。开发板、开关、喇叭、电池和配套连接线要一并准备，具体是否包含在采购清单中请核对BOM。此版本没有充电电路，电池充电需另行解决。
 
@@ -42,7 +42,7 @@ GPIO0有外部100k上拉至3.3V、1k串联和100nF消抖。GPIO8板载蓝灯由�
 
 ## 4. 直接烧录发布固件
 
-下载并解压 `DepartureBell-firmware-1.0.0.zip`，按其中的README.txt操作。烧录包已包含音频，无需先转换MP3或编译源码。
+下载并解压 `DepartureBell-firmware-1.1.0.zip`，按其中的README.txt操作。烧录包已包含六首音频，无需先转换MP3或编译源码。
 
 电脑安装Python和esptool，在解压目录执行（COM3改为实际端口）：
 

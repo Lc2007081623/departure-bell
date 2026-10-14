@@ -3,14 +3,16 @@ import hashlib
 import json
 import pathlib
 import zipfile
+import xml.etree.ElementTree as ET
 
 root=pathlib.Path(__file__).resolve().parent
+version=ET.parse(root/'android-app/AndroidManifest.xml').getroot().attrib['{http://schemas.android.com/apk/res/android}versionName']
 output=root/'generated'/'releases'
 output.mkdir(exist_ok=True)
 files=['firmware.ino.bootloader.bin','firmware.ino.partitions.bin','firmware.ino.bin','audio.bin']
 checksums={name:hashlib.sha256((root/'generated'/name).read_bytes()).hexdigest() for name in files}
 if (root/'generated/firmware.ino.bin').stat().st_size>0xF0000:raise ValueError('Application exceeds 960 KiB partition')
-instructions='''Departure Bell firmware 1.0.0 / ESP32-C3 SuperMini, 4MB Flash
+instructions=f'''Departure Bell firmware {version} / ESP32-C3 SuperMini, 4MB Flash
 
 Disconnect the battery before connecting ordinary USB.
 Hold BOOT, press RESET, then release BOOT to enter download mode if needed.
@@ -25,7 +27,7 @@ Default settings: 75% volume, random selection. BLE name: DepartureBell.
 Physical OFF plays the matching warning, then keeps BLE for 60 seconds before deep sleep.
 No OTA support. See the repository README for wiring and BLE protocol.
 '''
-archive=output/'DepartureBell-firmware-1.0.0.zip'
+archive=output/f'DepartureBell-firmware-{version}.zip'
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
  for name in files:z.write(root/'generated'/name,name)
  z.writestr('README.txt',instructions)

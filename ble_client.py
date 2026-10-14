@@ -13,7 +13,7 @@ TRACKS='c3b10003-7a6b-4c90-8d12-123456789abc'
 ACK='c3b10004-7a6b-4c90-8d12-123456789abc'
 
 def parse_state(text):
-    match=re.fullmatch(r'v(\d+),m([RT]),t(-?\d+),p([IMWE]),d([01]),s([0-3])',text)
+    match=re.fullmatch(r'v(\d+),m([RT]),t(-?\d+),p([IMWE]),d([01]),s([0-9])',text)
     if not match:
         raise ValueError(f'Unexpected state: {text}')
     return dict(volume=int(match[1]),mode=match[2],track=int(match[3]),phase=match[4],dirty=bool(int(match[5])),selected_track=int(match[6]))
@@ -52,17 +52,20 @@ async def main(args):
             raise AssertionError(f'No acknowledgement/state update for {command}')
         original=await state()
         print('INITIAL',original,flush=True)
-        print('TRACKS',(await client.read_gatt_char(TRACKS)).decode(),flush=True)
+        tracks_text=(await client.read_gatt_char(TRACKS)).decode()
+        track_ids=[int(item.split('=',1)[0]) for item in tracks_text.split(';')]
+        assert track_ids==list(range(len(track_ids))),tracks_text
+        print('TRACKS',tracks_text,flush=True)
         if args.test:
             report={'address':device.address,'initial':original,'checks':[]}
             try:
-                for command,expected in [('V101','ERR:command'),('V-1','ERR:command'),('T4','ERR:command'),('V75x','ERR:command')]:
+                for command,expected in [('V101','ERR:command'),('V-1','ERR:command'),('T'+str(len(track_ids)),'ERR:command'),('V75x','ERR:command')]:
                     await send(command,expected);assert (await state())['volume']==original['volume']
                     report['checks'].append(command+': rejected')
                 for volume in [0,65,75]:
                     await send(f'V{volume}',f'OK:V{volume}');assert (await state())['volume']==volume
                     report['checks'].append(f'volume {volume}: PASS')
-                for track in [0,1,2,3]:
+                for track in track_ids:
                     await send(f'T{track}',f'OK:T{track}')
                     end=asyncio.get_running_loop().time()+3
                     while True:
@@ -89,7 +92,7 @@ async def main(args):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
-    parser.add_argument('commands',nargs='*',help='V0..V100, T0..T3, R, S, ?')
+    parser.add_argument('commands',nargs='*',help='V0..V100, T0..T5, R, S, ?')
     parser.add_argument('--address')
     parser.add_argument('--timeout',type=float,default=15)
     parser.add_argument('--wait',type=float,default=0)

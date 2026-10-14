@@ -11,23 +11,23 @@
 <input id="volume" type="range" min="0" max="100" value="75" disabled>
 <button id="applyVolume" disabled>应用音量</button>
 <label for="track">播放方式</label><div class="row"><select id="track" disabled>
-<option value="R">随机选曲</option><option value="T0">etchujima</option><option value="T1">inage-kaigan</option><option value="T2">JK03-south</option><option value="T3">JT03_SGW</option></select><button id="applyTrack" disabled>应用选曲</button></div>
+<option value="R">随机选曲</option><option value="T0">etchujima</option><option value="T1">inage-kaigan</option><option value="T2">JK03-south</option><option value="T3">JT03_SGW</option><option value="T4">JT02_SMB</option><option value="T5">takasaki</option></select><button id="applyTrack" disabled>应用选曲</button></div>
 <div class="row"><button id="save" disabled>保存设置</button><button id="refresh" class="secondary" disabled>刷新状态</button></div>
 <div id="message" role="status"></div>
-<p class="small">保存将在音乐循环结束、选曲切换或警示音结束后的静音时刻完成。关机前请等待“保存成功”。解除自锁会播放警示音，然后休眠并断开蓝牙；再次按下开关后可重新连接。</p>
+<p class="small">保存将在音乐循环结束、选曲切换或警示音结束后的静音时刻完成，待机时立即保存。关机前请等待“保存成功”。解除自锁播放警示后，蓝牙继续保持60秒，再休眠断开。</p>
 <p class="small">此页面用于支持Web Bluetooth的Chrome/Edge。Android需要在支持的浏览器中通过HTTPS访问；不支持的浏览器可使用BLE调试工具连接。</p></main>
 <script>
 const SERVICE='c3b10000-7a6b-4c90-8d12-123456789abc';
 const uuid=n=>'c3b1000'+n+'-7a6b-4c90-8d12-123456789abc';
 const $=id=>document.getElementById(id), decoder=new TextDecoder(), encoder=new TextEncoder();
-const names=['etchujima','inage-kaigan','JK03-south','JT03_SGW'];
+const names=['etchujima','inage-kaigan','JK03-south','JT03_SGW','JT02_SMB','takasaki'];
 let device, command, state, ack, busy=false;
 function enable(connected){for(const id of ['volume','applyVolume','track','applyTrack','save','refresh','disconnect'])$(id).disabled=!connected||busy;$('connect').disabled=connected||busy;}
 function showError(e){$('message').textContent='操作失败：'+e.message;}
 function disconnected(){command=state=ack=null;busy=false;enable(false);$('state').textContent='已断开。按下实体开关后可重新连接。';}
 function renderState(value){
- const text=decoder.decode(value), m=/^v(\d+),m([RT]),t(-?\d+),p([IMWE]),d([01]),s([0-3])$/.exec(text);
- if(!m){$('message').textContent='未知状态：'+text;return;}
+ const text=decoder.decode(value), m=/^v(\d+),m([RT]),t(-?\d+),p([IMWE]),d([01]),s([0-9])$/.exec(text);
+ if(!m||Number(m[1])>100||Number(m[3])< -1||Number(m[3])>=names.length||Number(m[6])>=names.length){$('message').textContent='未知状态：'+text;return;}
  const phase={I:'待机',M:'音乐播放',W:'警示音播放',E:'播放错误'}[m[4]], index=Number(m[3]);
  $('volume').value=m[1];$('volumeValue').textContent=m[1]+'%';
  $('track').value=m[2]==='R'?'R':'T'+m[6];

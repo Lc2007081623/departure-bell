@@ -46,5 +46,29 @@
     "segment": 1,
     "decoded_lufs": -19.97,
     "decoded_true_peak_db": -7.14
+  },
+  {
+    "name": "JT02_SMB",
+    "segment": 0,
+    "decoded_lufs": -20.0,
+    "decoded_true_peak_db": -11.39
+  },
+  {
+    "name": "JT02_SMB",
+    "segment": 1,
+    "decoded_lufs": -19.99,
+    "decoded_true_peak_db": -7.26
+  },
+  {
+    "name": "takasaki",
+    "segment": 0,
+    "decoded_lufs": -19.99,
+    "decoded_true_peak_db": -5.85
+  },
+  {
+    "name": "takasaki",
+    "segment": 1,
+    "decoded_lufs": -20.04,
+    "decoded_true_peak_db": -2.81
   }
 ]

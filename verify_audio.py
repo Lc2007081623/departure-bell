@@ -54,4 +54,4 @@ if reports:
         json.dumps(reports, ensure_ascii=False, indent=2), encoding='utf-8')
     print('Decoded loudness:', min(x['decoded_lufs'] for x in reports),
           'to', max(x['decoded_lufs'] for x in reports), 'LUFS; peaks PASS')
-print('All eight segments verified; original MP3 files unchanged.')
+print(f'All {len(reports)} segments verified; original MP3 files unchanged.')

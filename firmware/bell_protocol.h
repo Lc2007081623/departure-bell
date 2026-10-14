@@ -1,6 +1,8 @@
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
+#include "audio_manifest.h"
+static_assert(TRACK_COUNT>0 && TRACK_COUNT<=10,"single-digit track protocol capacity");
 
 enum class BellCommandType : uint8_t { Invalid, Volume, Track, Random, Save, Status };
 struct BellCommand { BellCommandType type; uint8_t value; };
@@ -21,7 +23,7 @@ constexpr BellCommand parseBellCommand(const char *s,size_t n){
     value=value*10+unsigned(s[i]-'0');
     if(value>100)return {BellCommandType::Invalid,0};
   }
-  if(s[0]=='T' && value>3)return {BellCommandType::Invalid,0};
+  if(s[0]=='T' && value>=TRACK_COUNT)return {BellCommandType::Invalid,0};
   return {s[0]=='V'?BellCommandType::Volume:BellCommandType::Track,uint8_t(value)};
 }
 // Boundary and malformed-input regressions are evaluated by the real compiler.
@@ -30,8 +32,9 @@ static_assert(parseBellCommand("V100",4).value==100,"full volume");
 static_assert(parseBellCommand("V101",4).type==BellCommandType::Invalid,"volume range");
 static_assert(parseBellCommand("V-1",3).type==BellCommandType::Invalid,"negative volume");
 static_assert(parseBellCommand("V75x",4).type==BellCommandType::Invalid,"trailing garbage");
-static_assert(parseBellCommand("T3",2).value==3,"last track");
-static_assert(parseBellCommand("T4",2).type==BellCommandType::Invalid,"track range");
+static_assert(parseBellCommand("T3",2).value==3,"legacy track ID");
+static_assert(parseBellCommand("T5",2).value==5,"new last track");
+static_assert(parseBellCommand("T6",2).type==BellCommandType::Invalid,"track range");
 static_assert(parseBellCommand(" R\n",3).type==BellCommandType::Random,"trim command");
 static_assert(parseBellCommand("V",1).type==BellCommandType::Invalid,"missing value");
 static_assert(parseBellCommand("",0).type==BellCommandType::Invalid,"empty command");
@@ -42,10 +45,11 @@ constexpr uint32_t packBellSettings(BellSettings s){
   return 0xB1000000u | s.volume | uint32_t(s.track)<<8 | uint32_t(s.fixed)<<16;
 }
 constexpr bool validBellSettings(uint32_t v){
-  return (v&0xfffe0000u)==0xB1000000u && (v&255)<=100 && ((v>>8)&255)<4;
+  return (v&0xfffe0000u)==0xB1000000u && (v&255)<=100 && ((v>>8)&255)<TRACK_COUNT;
 }
 constexpr BellSettings unpackBellSettings(uint32_t v){
   return {uint8_t(v&255),uint8_t((v>>8)&255),bool((v>>16)&1)};
 }
 static_assert(validBellSettings(packBellSettings({0,3,true})),"settings roundtrip bounds");
+static_assert(validBellSettings(packBellSettings({75,5,true})),"new track settings");
 static_assert(!validBellSettings(0xffffffff),"reject erased settings");

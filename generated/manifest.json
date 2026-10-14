@@ -118,5 +118,65 @@
       }
     ],
     "source_sha256": "d2a274c0084b71afa5fa8273cd1abfded87deebb5bebd5208b4e23ee3debe819"
+  },
+  {
+    "name": "JT02_SMB",
+    "split_seconds": 11.0,
+    "samples": 355314,
+    "segments": [
+      [
+        975049,
+        242550
+      ],
+      [
+        1096324,
+        112764
+      ]
+    ],
+    "loudness": [
+      {
+        "input_lufs": -9.21,
+        "output_lufs": -19.95,
+        "output_true_peak_db": -11.36,
+        "mode": "linear"
+      },
+      {
+        "input_lufs": -12.68,
+        "output_lufs": -19.77,
+        "output_true_peak_db": -8.05,
+        "mode": "linear"
+      }
+    ],
+    "source_sha256": "2b40aeadc97f8c8717481a5fbcffe1cf9b0915fc259810d668802e995c42f627"
+  },
+  {
+    "name": "takasaki",
+    "split_seconds": 17.0,
+    "samples": 444638,
+    "segments": [
+      [
+        1152706,
+        374850
+      ],
+      [
+        1340131,
+        69788
+      ]
+    ],
+    "loudness": [
+      {
+        "input_lufs": -21.49,
+        "output_lufs": -20.06,
+        "output_true_peak_db": -5.83,
+        "mode": "linear"
+      },
+      {
+        "input_lufs": -20.11,
+        "output_lufs": -19.97,
+        "output_true_peak_db": -3.0,
+        "mode": "dynamic"
+      }
+    ],
+    "source_sha256": "75798b9bd7087143f9a434f3299d8e108ed8a10360f42d17219df6d0f8d26df9"
   }
 ]

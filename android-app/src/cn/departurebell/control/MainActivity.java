@@ -16,7 +16,7 @@ import android.widget.*;
 import java.util.*;
 
 public final class MainActivity extends Activity implements BellBleClient.Listener {
-    private static final String[] TRACK_NAMES={"etchujima","inage-kaigan","JK03-south","JT03_SGW"};
+    private static final String[] TRACK_NAMES=TrackCatalog.NAMES;
     private static final int GREEN=Color.rgb(36,107,80),INK=Color.rgb(28,45,37),MUTED=Color.rgb(95,113,103),BG=Color.rgb(243,246,243);
     private final Handler handler=new Handler(Looper.getMainLooper());
     private BellBleClient client;
@@ -24,7 +24,7 @@ public final class MainActivity extends Activity implements BellBleClient.Listen
     private Button connectButton,disconnectButton,saveButton,randomButton;
     private SeekBar volume;
     private final List<View> controls=new ArrayList<>();
-    private final Button[] trackButtons=new Button[4];
+    private final Button[] trackButtons=new Button[TRACK_NAMES.length];
     private boolean ready,dragging,saving;
     private final Runnable saveTimeout=()->{
         saving=false;saveButton.setEnabled(ready);saveState.setText("未收到保存确认");
@@ -85,11 +85,14 @@ public final class MainActivity extends Activity implements BellBleClient.Listen
         add(sound,text("松开滑块后生效。0%为静音，100%为最大音量。",12,MUTED,false),0);
         LinearLayout songs=card(root);add(songs,text("播放方式",18,INK,true),6);
         mode=text("连接后读取设备设置",14,MUTED,false);add(songs,mode,14);
-        for(int i=0;i<4;i++){
+        for(int i=0;i<TRACK_NAMES.length;i++){
             final int track=i;trackButtons[i]=button(TRACK_NAMES[i],false);trackButtons[i].setTextSize(13);controls.add(trackButtons[i]);
             trackButtons[i].setOnClickListener(v->command("T"+track,"正在选择 "+TRACK_NAMES[track]+"…"));
         }
-        row(songs,trackButtons[0],trackButtons[1]);row(songs,trackButtons[2],trackButtons[3]);
+        for(int i=0;i<TRACK_NAMES.length;i+=2){
+            if(i+1<TRACK_NAMES.length)row(songs,trackButtons[i],trackButtons[i+1]);
+            else add(songs,trackButtons[i],10);
+        }
         randomButton=button("随机选曲",false);add(songs,randomButton,12);controls.add(randomButton);
         randomButton.setOnClickListener(v->command("R","正在恢复随机模式…"));
         add(songs,text("警示期间选曲会在警示播完后生效。实体开关仍控制开始和结束。",12,MUTED,false),0);
@@ -98,7 +101,7 @@ public final class MainActivity extends Activity implements BellBleClient.Listen
         feedback=text("连接后即可调音量和选曲",13,INK,false);feedback.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);add(settings,feedback,0);
         saveButton.setOnClickListener(v->{saving=true;saveButton.setEnabled(false);saveState.setText("正在请求保存…");command("S","等待设备保存…");handler.removeCallbacks(saveTimeout);handler.postDelayed(saveTimeout,30000);});
         add(root,text("警示结束后蓝牙保留1分钟；之后休眠断开。再次按下开关后，点击连接即可。\n本应用不联网，仅通过蓝牙控制发车铃。",12,MUTED,false),12);
-        add(root,text("发车铃控制 · 1.0.0",11,MUTED,false),0);
+        add(root,text("发车铃控制 · 1.1.0",11,MUTED,false),0);
     }
     private void command(String value,String message){if(!ready)return;feedback.setText(message);client.send(value);}
     private String[] requiredPermissions(){return Build.VERSION.SDK_INT>=31?new String[]{Manifest.permission.BLUETOOTH_SCAN,Manifest.permission.BLUETOOTH_CONNECT}:new String[]{Manifest.permission.ACCESS_FINE_LOCATION};}
@@ -136,7 +139,7 @@ public final class MainActivity extends Activity implements BellBleClient.Listen
         String current=s.track>=0?TRACK_NAMES[s.track]:"";
         phase.setText(s.phase=='M'?"正在播放 · "+current:s.phase=='W'?"警示音 · "+current:s.phase=='E'?"设备播放异常":"待机 · 蓝牙仍可控制");
         mode.setText(s.fixed?"固定曲目 · "+TRACK_NAMES[s.selected]:"随机模式 · 每次启动选择一首");
-        for(int i=0;i<4;i++){boolean selected=s.fixed&&s.selected==i;trackButtons[i].setBackground(background(selected?GREEN:Color.rgb(233,241,236),0));trackButtons[i].setTextColor(selected?Color.WHITE:GREEN);}
+        for(int i=0;i<TRACK_NAMES.length;i++){boolean selected=s.fixed&&s.selected==i;trackButtons[i].setBackground(background(selected?GREEN:Color.rgb(233,241,236),0));trackButtons[i].setTextColor(selected?Color.WHITE:GREEN);}
         randomButton.setBackground(background(s.fixed?Color.rgb(233,241,236):GREEN,0));randomButton.setTextColor(s.fixed?GREEN:Color.WHITE);
         if(!saving)saveState.setText(s.dirty?"设置已更改，点击保存可在下次启动保留":"当前设置已保存");
     }
@@ -145,7 +148,7 @@ public final class MainActivity extends Activity implements BellBleClient.Listen
         else if(value.equals("OK:S")){saving=false;handler.removeCallbacks(saveTimeout);saveButton.setEnabled(ready);saveState.setText("保存成功，下次启动继续使用");feedback.setText("设置已保存");}
         else if(value.startsWith("ERR:")){saving=false;handler.removeCallbacks(saveTimeout);saveButton.setEnabled(ready);feedback.setText(value.equals("ERR:save")?"保存失败，请重试":"设备未接受操作，请重试（"+value+"）");}
         else if(value.startsWith("OK:V"))feedback.setText("音量已设为 "+value.substring(4)+"%");
-        else if(value.startsWith("OK:T")){int n=Integer.parseInt(value.substring(4));if(n>=0&&n<4)feedback.setText("已选择 "+TRACK_NAMES[n]);}
+        else if(value.startsWith("OK:T")){int n=Integer.parseInt(value.substring(4));if(n>=0&&n<TRACK_NAMES.length)feedback.setText("已选择 "+TRACK_NAMES[n]);}
         else if(value.equals("OK:R"))feedback.setText("已恢复随机模式");
     }
     @Override protected void onDestroy(){handler.removeCallbacksAndMessages(null);if(client!=null)client.disconnect();super.onDestroy();}

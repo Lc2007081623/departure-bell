@@ -29,6 +29,13 @@ vm.createContext(context);vm.runInContext(script,context);
  el('track').value='T3';await el('applyTrack').onclick();assert.equal(writes.at(-1),'T3');
  current='v65,mT,t1,pW,d1,s3';characteristics[uuid(2)].emit(current);
  assert.equal(el('track').value,'T3');assert(el('state').textContent.includes('警示音播放'));assert(el('state').textContent.includes('设置未保存'));
+ for(const [index,name] of [[4,'JT02_SMB'],[5,'takasaki']]){
+  el('track').value='T'+index;await el('applyTrack').onclick();assert.equal(writes.at(-1),'T'+index);
+  characteristics[uuid(2)].emit(`v65,mT,t${index},pM,d1,s${index}`);
+  assert(el('state').textContent.includes(name));assert.equal(el('track').value,'T'+index);
+ }
+ characteristics[uuid(2)].emit('v65,mT,t4,pW,d1,s5');assert.equal(el('track').value,'T5');
+ characteristics[uuid(2)].emit('v65,mT,t6,pM,d1,s6');assert(el('message').textContent.includes('未知状态'));
  await el('save').onclick();assert.equal(writes.at(-1),'S');
  characteristics[uuid(4)].emit('WAIT:S');assert(el('message').textContent.includes('等待'));
  characteristics[uuid(4)].emit('OK:S');assert(el('message').textContent.includes('保存成功'));

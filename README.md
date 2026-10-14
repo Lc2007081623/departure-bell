@@ -4,9 +4,9 @@
 
 硬件采用 **ESP32-C3 SuperMini + NS4168功放 + 8Ω / 2W喇叭**，由单节锂电池供电。音乐存放在开发板Flash中，设备可独立发声，无需手机持续连接。安卓应用用于通过BLE调音量、选曲和保存设置。
 
-目前已完成实物制作、烧录和试听验证，公开了 **Gerber、BOM、固件源码、可直接烧录的固件包，以及安卓APK和源码**，可以按下面的步骤复刻。PCB生产文件为v6，软件发布版本为v1.0.0。
+目前已完成实物制作、烧录和试听验证，公开了 **Gerber、BOM、固件源码、可直接烧录的固件包，以及安卓APK和源码**，可以按下面的步骤复刻。PCB生产文件为v6，最新软件版本为v1.1.0，曲库扩充到六首。
 
-**[开始复刻：制作与接线说明](hardware/README.md)** · **[完整下载页](https://github.com/Lc2007081623/departure-bell/releases/tag/v1.0.0)**
+**[开始复刻：制作与接线说明](hardware/README.md)** · **[完整下载页](https://github.com/Lc2007081623/departure-bell/releases/latest)**
 
 ## 复刻需要的文件
 
@@ -14,8 +14,8 @@
 | --- | --- | --- |
 | Gerber ZIP | 上传PCB厂家制作电路板 | [下载Gerber](https://github.com/Lc2007081623/departure-bell/releases/download/v1.0.0/Gerber_PCB1_2026-10-13.zip) |
 | BOM Excel | 按元器件型号、封装和数量采购 | [下载BOM](https://github.com/Lc2007081623/departure-bell/releases/download/v1.0.0/BOM_Board1_PCB1_2026-10-13.xlsx) |
-| 固件烧录包 | 包含启动程序、分区表、应用、音频和烧录说明 | [下载固件](https://github.com/Lc2007081623/departure-bell/releases/download/v1.0.0/DepartureBell-firmware-1.0.0.zip) |
-| 安卓APK | 连接实体设备，调音量和选曲 | [下载APK](https://github.com/Lc2007081623/departure-bell/releases/download/v1.0.0/DepartureBell-1.0.0.apk) |
+| 固件烧录包 | 包含启动程序、分区表、应用、音频和烧录说明 | [下载固件](https://github.com/Lc2007081623/departure-bell/releases/download/v1.1.0/DepartureBell-firmware-1.1.0.zip) |
+| 安卓APK | 连接实体设备，调音量和选曲 | [下载APK](https://github.com/Lc2007081623/departure-bell/releases/download/v1.1.0/DepartureBell-1.1.0.apk) |
 
 **复刻流程：Gerber打板 → 按BOM采购和焊接 → 连接开发板、开关、喇叭、电池 → USB烧录 → 实体按键试听。** 使用发布包可直接烧录，不必先搭建固件和安卓应用的完整编译环境。
 
@@ -42,7 +42,7 @@ flowchart LR
 
 ## 安卓应用
 
-[下载 APK](android-app/output/DepartureBell-1.0.0.apk?raw=true)，支持安卓8.0及以上。也可在本仓库 Releases 下载。
+[下载 APK](android-app/output/DepartureBell-1.1.0.apk?raw=true)，支持安卓8.0及以上，可覆盖安装1.0.0。也可在本仓库 Releases 下载。六首版需要同时更新设备固件和音频映像。
 
 安装后允许蓝牙权限，保持开关ON，点击“连接发车铃”。先断开nRF Connect等其他控制应用。设备名是 **DepartureBell**。手机与设备之间是BLE控制连接，不传输手机音乐。
 
@@ -76,10 +76,12 @@ flowchart LR
 | 1 | inage-kaigan（11）.mp3 | 11秒 |
 | 2 | JK03-south（18）.mp3 | 18秒 |
 | 3 | JT03_SGW（17）.mp3 | 17秒 |
+| 4 | JT02_SMB（11）.mp3 | 11秒 |
+| 5 | takasaki（17）.mp3 | 17秒 |
 
-音乐与警示共八段，分别进行两遍响度归一化（目标-20 LUFS、编码前真峰值上限-3dBTP），再转为22050Hz单声道4位IMA ADPCM。播放时解码成16位PCM，通过双声道I²S发送相同样本。首尾和停止转换使用约5ms淡入淡出。每次启动校验音频CRC，失败则禁用播放。
+音乐与警示共十二段，分别进行两遍响度归一化（目标-20 LUFS、编码前真峰值上限-3dBTP），再转为22050Hz单声道4位IMA ADPCM。播放时解码成16位PCM，通过双声道I²S发送相同样本。首尾和停止转换使用约5ms淡入淡出。每次启动校验音频CRC，失败则禁用播放。
 
-`generated/audio.bin`为可直接烧录的音频映像，`manifest.json`记录分段、偏移和源文件SHA256。`verify_audio.py`检查解码、CRC、分段和响度，实际解码后的八段约-19.99到-19.88 LUFS。
+`generated/audio.bin`为可直接烧录的音频映像，`manifest.json`记录分段、偏移和源文件SHA256。`verify_audio.py`检查解码、CRC、分段和响度，实际解码后的十二段约-20.04到-19.88 LUFS。`tracks.json`固定曲目编号；新增歌曲应追加，不能重排旧编号，以兼容NVS保存的设置。`verify_catalog.py`检查固件、安卓和网页的曲目一致性。
 
 ## 固件构建与烧录
 
@@ -104,7 +106,7 @@ arduino-cli lib install NimBLE-Arduino@2.5.1
 | 应用 | 0x10000 | 960KiB |
 | 音频 | 0x100000 | 3MiB |
 
-无OTA。当前应用613840字节，音频975049字节。必要时按住BOOT、按RESET、松开BOOT进入下载模式；上传后单独按RESET运行程序。
+无OTA。六首版应用614512字节，音频1375025字节，仍使用原分区。必要时按住BOOT、按RESET、松开BOOT进入下载模式；上传后单独按RESET运行程序。
 
 ## 项目结构与验证
 
@@ -118,7 +120,7 @@ arduino-cli lib install NimBLE-Arduino@2.5.1
 | `ble_control.html` | 电脑Chrome/Edge用Web Bluetooth控制页 |
 | `ble_client.py` | 电脑BLE命令和实物协议测试（依赖bleak） |
 
-安卓应用已编译并通过协议测试、APK签名和对齐校验，用户反馈使用正常。固件实物检查了音乐循环、对应警示、BLE音量/选曲/随机、保存、再次唤醒连接，以及60秒空闲后的休眠。网页控制可运行 `node test_ble_control.cjs` 检查。
+1.0.0安卓应用用户反馈使用正常，固件实物检查了音乐循环、对应警示、BLE音量/选曲/随机、保存、再次唤醒连接，以及60秒空闲后的休眠。1.1.0六首版已编译并通过12段音频、曲目编号一致性、安卓协议、APK签名及网页控制检查；已上传实物，通过启动CRC和六首BLE选曲、音量、随机模式检查。新增曲目的试听和手机验证待确认。可运行 `python verify_catalog.py` 和 `node test_ble_control.cjs` 检查六首选曲。
 
 本地签名密钥、完整Flash备份、开发工具及串口日志不纳入仓库。当前为个人DIY项目。
 
