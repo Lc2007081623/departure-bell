@@ -1,6 +1,35 @@
-# 发车铃 · Departure Bell
+# 可复刻的实体发车铃 · Departure Bell
 
-ESP32-C3 SuperMini + NS4168 的自锁开关发车铃，带安卓 BLE 控制应用。
+一台可以自己打板、焊接、烧录的实体发车铃：**按下真实的自锁开关，喇叭循环播放发车音乐；解除自锁后，播放对应的警示音。**
+
+硬件采用 **ESP32-C3 SuperMini + NS4168功放 + 8Ω / 2W喇叭**，由单节锂电池供电。音乐存放在开发板Flash中，设备可独立发声，无需手机持续连接。安卓应用用于通过BLE调音量、选曲和保存设置。
+
+目前已完成实物制作、烧录和试听验证，公开了 **Gerber、BOM、固件源码、可直接烧录的固件包，以及安卓APK和源码**，可以按下面的步骤复刻。PCB生产文件为v6，软件发布版本为v1.0.0。
+
+**[开始复刻：制作与接线说明](hardware/README.md)** · **[完整下载页](https://github.com/Lc2007081623/departure-bell/releases/tag/v1.0.0)**
+
+## 复刻需要的文件
+
+| 文件 | 用途 | 下载 |
+| --- | --- | --- |
+| Gerber ZIP | 上传PCB厂家制作电路板 | [下载Gerber](https://github.com/Lc2007081623/departure-bell/releases/download/v1.0.0/Gerber_PCB1_2026-10-13.zip) |
+| BOM Excel | 按元器件型号、封装和数量采购 | [下载BOM](https://github.com/Lc2007081623/departure-bell/releases/download/v1.0.0/BOM_Board1_PCB1_2026-10-13.xlsx) |
+| 固件烧录包 | 包含启动程序、分区表、应用、音频和烧录说明 | [下载固件](https://github.com/Lc2007081623/departure-bell/releases/download/v1.0.0/DepartureBell-firmware-1.0.0.zip) |
+| 安卓APK | 连接实体设备，调音量和选曲 | [下载APK](https://github.com/Lc2007081623/departure-bell/releases/download/v1.0.0/DepartureBell-1.0.0.apk) |
+
+**复刻流程：Gerber打板 → 按BOM采购和焊接 → 连接开发板、开关、喇叭、电池 → USB烧录 → 实体按键试听。** 使用发布包可直接烧录，不必先搭建固件和安卓应用的完整编译环境。
+
+## 实体设备结构
+
+```mermaid
+flowchart LR
+    Battery[单节带保护锂电池] --> Boost[FP6298升压至5V]
+    Boost --> MCU[ESP32-C3 SuperMini]
+    MCU -->|板载3.3V供电及I²S音频| Amp[NS4168功放]
+    Amp --> Speaker[8Ω / 2W喇叭]
+    Switch[实体自锁开关] -->|GPIO0| MCU
+    Phone[安卓控制应用] -. BLE调音量与选曲 .-> MCU
+```
 
 ## 功能
 
@@ -99,6 +128,8 @@ arduino-cli lib install NimBLE-Arduino@2.5.1
 - [BOM Excel](hardware/BOM_Board1_PCB1_2026-10-13.xlsx)：对应元器件清单。
 
 文件按原始导出内容上传，未修改。可编辑EDA工程和原理图尚未纳入仓库。
+
+已提供Gerber生产文件，可据此制作PCB；当前公开资料尚不包含可编辑EDA工程、完整原理图、外壳模型或实物照片。制作时以BOM、板上网络标注和[接线说明](hardware/README.md)为准。
 
 ## 许可证
 
